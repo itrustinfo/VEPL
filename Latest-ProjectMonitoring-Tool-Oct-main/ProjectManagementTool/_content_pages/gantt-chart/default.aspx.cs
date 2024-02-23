@@ -219,8 +219,15 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                             }
                             string tStatus = ds.Tables[0].Rows[i]["Status"].ToString();
 
+                            //
+                            string Completion = "0";// ds.Tables[0].Rows[i]["Task_CulumativePercentage"].ToString();
+                            if(ds.Tables[0].Rows[i]["Task_CulumativePercentage"] != DBNull.Value)
+                            {
+                                Completion = ds.Tables[0].Rows[i]["Task_CulumativePercentage"].ToString();
+                            }
+
                             strScript.Append(@"g.AddTaskItemObject({pID: '" + ds.Tables[0].Rows[i]["TaskUID"].ToString() + "',pName: '" + ds.Tables[0].Rows[i]["Name"].ToString().Replace("'", "") + "',pStart: '" + Convert.ToDateTime(ds.Tables[0].Rows[i]["StartDate"].ToString()).ToString("yyyy-MM-dd") + "',pEnd: '" + Convert.ToDateTime(ds.Tables[0].Rows[i]["PlannedEndDate"].ToString()).ToString("yyyy-MM-dd") + "',");
-                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + ds.Tables[0].Rows[i]["StatusPer"].ToString() + ",pGroup: " + pgroup + ",pParent: '" + dsworkpackage.Tables[0].Rows[0]["WorkPackageUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
+                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + Completion + ",pGroup: " + pgroup + ",pParent: '" + dsworkpackage.Tables[0].Rows[0]["WorkPackageUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
 
                             DataSet dsSecond = dbgetdata.GetTask_by_ParentTaskUID(new Guid(ds.Tables[0].Rows[i]["TaskUID"].ToString()));
                             for (int j = 0; j < dsSecond.Tables[0].Rows.Count; j++)
@@ -274,9 +281,15 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                                     }
 
                                     tStatus = dsSecond.Tables[0].Rows[j]["Status"].ToString();
+                                    Completion = "0";// dsSecond.Tables[0].Rows[j]["Task_CulumativePercentage"].ToString();// ds.Tables[0].Rows[i]["Task_CulumativePercentage"].ToString();
+                                  
+                                    if (dsSecond.Tables[0].Rows[j]["Task_CulumativePercentage"] != DBNull.Value)
+                                    {
+                                        Completion = dsSecond.Tables[0].Rows[j]["Task_CulumativePercentage"].ToString();
+                                    }
 
                                     strScript.Append(@"g.AddTaskItemObject({pID: '" + dsSecond.Tables[0].Rows[j]["TaskUID"].ToString() + "',pName: '" + dsSecond.Tables[0].Rows[j]["Name"].ToString().Replace("'", "") + "',pStart: '" + Convert.ToDateTime(dsSecond.Tables[0].Rows[j]["StartDate"].ToString()).ToString("yyyy-MM-dd") + "',pEnd: '" + Convert.ToDateTime(dsSecond.Tables[0].Rows[j]["PlannedEndDate"].ToString()).ToString("yyyy-MM-dd") + "',");
-                                    strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + dsSecond.Tables[0].Rows[j]["StatusPer"].ToString() + ",pGroup:" + pgroup + ",pParent: '" + ds.Tables[0].Rows[i]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues1 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
+                                    strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + Completion  + ",pGroup:" + pgroup + ",pParent: '" + ds.Tables[0].Rows[i]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues1 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
 
                                     DataSet dsThird = dbgetdata.GetTask_by_ParentTaskUID(new Guid(dsSecond.Tables[0].Rows[j]["TaskUID"].ToString()));
                                     for (int k = 0; k < dsThird.Tables[0].Rows.Count; k++)
@@ -287,7 +300,7 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                                             {
                                                 DelayedTask = dbgetdata.Check_Task_is_Delayed(new Guid(dsThird.Tables[0].Rows[k]["TaskUID"].ToString())) > 0 ? true : false;
                                             }
-                                            else if (dsThird.Tables[0].Rows[j]["Status"].ToString() == "P")
+                                            else if (dsThird.Tables[0].Rows[k]["Status"].ToString() == "P")
                                             {
                                                 DelayedTask = dbgetdata.Check_Task_is_Delayed_Notstarted(new Guid(dsThird.Tables[0].Rows[k]["TaskUID"].ToString())) > 0 ? true : false;
                                             }
@@ -333,9 +346,14 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                                             }
 
                                             tStatus = dsThird.Tables[0].Rows[k]["Status"].ToString();
+                                            Completion = "0";// dsThird.Tables[0].Rows[k]["Task_CulumativePercentage"].ToString();
+                                            if (dsThird.Tables[0].Rows[k]["Task_CulumativePercentage"] != DBNull.Value)
+                                            {
+                                                Completion = dsThird.Tables[0].Rows[k]["Task_CulumativePercentage"].ToString();
+                                            }
 
                                             strScript.Append(@"g.AddTaskItemObject({pID: '" + dsThird.Tables[0].Rows[k]["TaskUID"].ToString() + "',pName: '" + dsThird.Tables[0].Rows[k]["Name"].ToString().Replace("'", "") + "',pStart: '" + Convert.ToDateTime(dsThird.Tables[0].Rows[k]["StartDate"].ToString()).ToString("yyyy-MM-dd") + "',pEnd: '" + Convert.ToDateTime(dsThird.Tables[0].Rows[k]["PlannedEndDate"].ToString()).ToString("yyyy-MM-dd") + "',");
-                                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + dsThird.Tables[0].Rows[k]["StatusPer"].ToString() + ",pGroup: " + pgroup + ",pParent: '" + dsSecond.Tables[0].Rows[j]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues2 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
+                                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + Completion + ",pGroup: " + pgroup + ",pParent: '" + dsSecond.Tables[0].Rows[j]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues2 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
                                             DataSet dsFourth = dbgetdata.GetTask_by_ParentTaskUID(new Guid(dsThird.Tables[0].Rows[k]["TaskUID"].ToString()));
                                             for (int l = 0; l < dsFourth.Tables[0].Rows.Count; l++)
                                             {
@@ -386,9 +404,14 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                                                     }
 
                                                     tStatus = dsFourth.Tables[0].Rows[l]["Status"].ToString();
+                                                    Completion = "0";// dsFourth.Tables[0].Rows[l]["Task_CulumativePercentage"].ToString();
+                                                    if (dsFourth.Tables[0].Rows[l]["Task_CulumativePercentage"] != DBNull.Value)
+                                                    {
+                                                        Completion = dsFourth.Tables[0].Rows[l]["Task_CulumativePercentage"].ToString();
+                                                    }
 
                                                     strScript.Append(@"g.AddTaskItemObject({pID: '" + dsFourth.Tables[0].Rows[l]["TaskUID"].ToString() + "',pName: '" + dsFourth.Tables[0].Rows[l]["Name"].ToString().Replace("'", "") + "',pStart: '" + Convert.ToDateTime(dsFourth.Tables[0].Rows[l]["StartDate"].ToString()).ToString("yyyy-MM-dd") + "',pEnd: '" + Convert.ToDateTime(dsFourth.Tables[0].Rows[l]["PlannedEndDate"].ToString()).ToString("yyyy-MM-dd") + "',");
-                                                    strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + dsFourth.Tables[0].Rows[l]["StatusPer"].ToString() + ",pGroup: " + pgroup + ",pParent: '" + dsThird.Tables[0].Rows[k]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues3 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
+                                                    strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp: " + Completion  + ",pGroup: " + pgroup + ",pParent: '" + dsThird.Tables[0].Rows[k]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues3 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
 
                                                     DataSet dsFifth = dbgetdata.GetTask_by_ParentTaskUID(new Guid(dsFourth.Tables[0].Rows[l]["TaskUID"].ToString()));
                                                     for (int m = 0; m < dsFifth.Tables[0].Rows.Count; m++)
@@ -442,9 +465,14 @@ namespace ProjectManagementTool._content_pages.gantt_chart
                                                             }
 
                                                             tStatus = dsFifth.Tables[0].Rows[m]["Status"].ToString();
-
+                                                            Completion = "0";// dsFifth.Tables[0].Rows[m]["Task_CulumativePercentage"].ToString();
+                                                            if (dsFifth.Tables[0].Rows[m]["Task_CulumativePercentage"] != DBNull.Value)
+                                                            {
+                                                                Completion = dsFifth.Tables[0].Rows[m]["Task_CulumativePercentage"].ToString();
+                                                            }
+                                                            //
                                                             strScript.Append(@"g.AddTaskItemObject({pID: '" + dsFifth.Tables[0].Rows[m]["TaskUID"].ToString() + "',pName: '" + dsFifth.Tables[0].Rows[m]["Name"].ToString().Replace("'", "") + "',pStart: '" + Convert.ToDateTime(dsFifth.Tables[0].Rows[m]["StartDate"].ToString()).ToString("yyyy-MM-dd") + "',pEnd: '" + Convert.ToDateTime(dsFifth.Tables[0].Rows[m]["PlannedEndDate"].ToString()).ToString("yyyy-MM-dd") + "',");
-                                                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp:" + dsFifth.Tables[0].Rows[m]["StatusPer"].ToString() + ",pGroup: " + pgroup + ",pParent: '" + dsFourth.Tables[0].Rows[l]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues4 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
+                                                            strScript.Append(@"pClass: '" + pClass + "',pLink: '',pMile: 0,pRes: '',pComp:" + Completion + ",pGroup: " + pgroup + ",pParent: '" + dsFourth.Tables[0].Rows[l]["TaskUID"].ToString() + "',pOpen: 1,pDepend: '" + dependencyvalues4 + "',pCaption: '',pCost: 1000,pNotes: '" + pNotes + "'});");
                                                         }
                                                     }
                                                 }
